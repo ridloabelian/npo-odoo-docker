@@ -1,11 +1,11 @@
 # ==============================================================================
-# CADDY REVERSE PROXY CONFIGURATION - WAQF ODOO DOCKER
-# Amal Produktif, Forum Wakaf Produktif (FWP) & Asosiasi Nazhir Indonesia (ANI)
-# Otomatis SSL Let's Encrypt & WebSocket
+# CADDY REVERSE PROXY CONFIGURATION - NPO ODOO DOCKER
+# Inisiatif Sistem ERP Terpadu Lembaga Nirlaba Indonesia
+# Auto-SSL Let's Encrypt, HTTP/3 (QUIC), & WebSocket Routing Odoo 18 / 19
 # ==============================================================================
 
 {
-    email {$ACME_EMAIL:admin@fwp.or.id}
+    email {$ACME_EMAIL:admin@npo.id}
     admin off
 }
 
@@ -13,12 +13,12 @@
 {$DOMAIN_NAME:localhost} {
     encode gzip zstd
 
-    # Batas ukuran payload request (untuk scan Akta Ikrar Wakaf / berkas legal nazhir)
+    # Batas ukuran payload request (untuk scan berkas legal, akta ikrar wakaf, dokumen mustahik)
     request_body {
         max_size 100MB
     }
 
-    # Header keamanan standar industri
+    # Header keamanan standar produksi (OWASP / Enterprise Security)
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"
@@ -30,8 +30,8 @@
     }
 
     # --------------------------------------------------------------------------
-    # 1. Routing WebSocket Odoo 17 (Port 8072 - gevent/longpolling)
-    # Penting agar chat langsung (discuss), notifikasi real-time tidak putus
+    # 1. Routing WebSocket Odoo 18 / 19 (Port 8072 - gevent/longpolling)
+    # Sangat penting untuk live chat, Discuss, notifikasi bus, dan status real-time
     # --------------------------------------------------------------------------
     handle /websocket* {
         reverse_proxy web:8072 {
@@ -42,9 +42,19 @@
         }
     }
 
+    # Kompatibilitas Odoo 16/17 longpolling
+    handle /longpolling* {
+        reverse_proxy web:8072 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
     # --------------------------------------------------------------------------
     # 2. Routing Trafik Web Standar Odoo (Port 8069)
-    # Dilengkapi timeout 3600 detik untuk laporan akuntansi PSAK 112 yang berat
+    # Timeout 3600 detik disiapkan untuk kalkulasi laporan keuangan akuntansi berat
     # --------------------------------------------------------------------------
     handle {
         reverse_proxy web:8069 {
@@ -60,7 +70,7 @@
         }
     }
 
-    # Logging ke stdout untuk Docker monitoring
+    # Logging terstruktur ke stdout untuk kemudahan monitoring Docker logs
     log {
         output stdout
         format console

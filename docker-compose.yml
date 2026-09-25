@@ -1,24 +1,29 @@
 # ==============================================================================
-# WAQF ODOO DOCKER COMPOSE CONFIGURATION
-# Inisiatif Bersama: Amal Produktif, FWP & Asosiasi Nazhir Indonesia (ANI)
-# Sistem ERP Wakaf Berstandar PSAK 412 (PSAK 112) & LSP BWI
+# NPO ODOO DOCKER - TURNKEY DOCKER COMPOSE V2
+# Inisiatif Sistem ERP Terpadu Lembaga Nirlaba Indonesia
+# Standar: BWI (PSAK 412), BAZNAS (PSAK 109), Kemensos (ISAK 35)
+# Arsitektur 3-Tier: Caddy 2 (Proxy) -> Odoo 19/18 LTS (Web) -> PostgreSQL 17/16 (DB)
 # ==============================================================================
 
 services:
   # ----------------------------------------------------------------------------
-  # 1. DATABASE SERVICE (PostgreSQL 17 / 16 Alpine)
+  # 1. DATABASE SERVICE: PostgreSQL 17 / 16 Alpine
   # ----------------------------------------------------------------------------
   db:
     image: ${POSTGRES_IMAGE:-postgres:17-alpine}
-    container_name: waqf_odoo_db
+    container_name: ${CONTAINER_PREFIX:-npo}_odoo_db
     restart: unless-stopped
     command: >
       postgres
-      -c shared_buffers=256MB
-      -c effective_cache_size=768MB
-      -c maintenance_work_mem=64MB
-      -c work_mem=16MB
-      -c max_connections=100
+      -c shared_buffers=${POSTGRES_SHARED_BUFFERS:-256MB}
+      -c effective_cache_size=${POSTGRES_EFFECTIVE_CACHE_SIZE:-768MB}
+      -c maintenance_work_mem=${POSTGRES_MAINTENANCE_WORK_MEM:-64MB}
+      -c work_mem=${POSTGRES_WORK_MEM:-16MB}
+      -c max_connections=${POSTGRES_MAX_CONNECTIONS:-100}
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-postgres}
       POSTGRES_USER: ${POSTGRES_USER:-odoo}
@@ -27,7 +32,8 @@ services:
     volumes:
       - odoo-db-data:/var/lib/postgresql/data/pgdata
     networks:
-      - waqf-network
+      - npo-network
+    # Zero host exposure: Port 5432 terisolasi total dalam jaringan internal docker
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-odoo} -d ${POSTGRES_DB:-postgres}"]
       interval: 10s
@@ -36,16 +42,17 @@ services:
       start_period: 10s
 
   # ----------------------------------------------------------------------------
-  # 2. WEB SERVICE (Odoo 19.0 Community Edition / Custom Build)
+  # 2. WEB SERVICE: Odoo 19 / 18 LTS Community Edition
   # ----------------------------------------------------------------------------
   web:
     image: ${ODOO_IMAGE:-odoo:19.0}
-    # Jika ingin melakukan build lokal dengan dependensi Python lengkap (PSAK 112, QR Code, Excel),
-    # aktifkan baris 'build: .' di bawah ini:
+    # Untuk build image lokal dengan dependensi Python lengkap (PSAK, Excel, QR Code):
     # build:
     #   context: .
     #   dockerfile: Dockerfile
-    container_name: waqf_odoo_web
+    #   args:
+    #     ODOO_BASE_IMAGE: ${ODOO_IMAGE:-odoo:19.0}
+    container_name: ${CONTAINER_PREFIX:-npo}_odoo_web
     restart: unless-stopped
     depends_on:
       db:
@@ -59,20 +66,19 @@ services:
       - odoo-web-data:/var/lib/odoo
       - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
       - ./extra-addons:/mnt/extra-addons
-      - ./waqf_core:/mnt/extra-addons/waqf_core
-      - ./l10n_id_waqf_psak112:/mnt/extra-addons/l10n_id_waqf_psak112
     expose:
-      - "8069"
-      - "8072"
+      - "8069" # Odoo HTTP / XML-RPC
+      - "8072" # Odoo WebSockets / Longpolling
+    # Zero host exposure: Port 8069 & 8072 hanya dapat diakses melalui reverse proxy Caddy
     networks:
-      - waqf-network
+      - npo-network
 
   # ----------------------------------------------------------------------------
-  # 3. REVERSE PROXY SERVICE (Caddy 2 with Auto-HTTPS & WebSockets)
+  # 3. REVERSE PROXY SERVICE: Caddy 2 Alpine (Auto-SSL Let's Encrypt & WebSockets)
   # ----------------------------------------------------------------------------
   proxy:
     image: caddy:2-alpine
-    container_name: waqf_odoo_proxy
+    container_name: ${CONTAINER_PREFIX:-npo}_odoo_proxy
     restart: unless-stopped
     depends_on:
       - web
@@ -82,31 +88,31 @@ services:
       - "${HTTPS_PORT:-443}:443/udp" # HTTP/3 Support (QUIC)
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME:-localhost}
-      ACME_EMAIL: ${ACME_EMAIL:-admin@fwp.or.id}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@npo.id}
     volumes:
       - ./config/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
     networks:
-      - waqf-network
+      - npo-network
 
 # ------------------------------------------------------------------------------
 # VOLUMES PERSISTEN
 # ------------------------------------------------------------------------------
 volumes:
   odoo-web-data:
-    name: waqf_odoo_web_data
+    name: ${VOLUME_PREFIX:-npo}_odoo_web_data
   odoo-db-data:
-    name: waqf_odoo_db_data
+    name: ${VOLUME_PREFIX:-npo}_odoo_db_data
   caddy-data:
-    name: waqf_caddy_data
+    name: ${VOLUME_PREFIX:-npo}_caddy_data
   caddy-config:
-    name: waqf_caddy_config
+    name: ${VOLUME_PREFIX:-npo}_caddy_config
 
 # ------------------------------------------------------------------------------
 # ISOLASI JARINGAN INTERNAL
 # ------------------------------------------------------------------------------
 networks:
-  waqf-network:
-    name: waqf_internal_network
+  npo-network:
+    name: ${NETWORK_NAME:-npo_internal_network}
     driver: bridge

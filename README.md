@@ -1,347 +1,418 @@
-# 🕌 Waqf Odoo Docker
+# npo-odoo-docker: Turnkey Production Package untuk ERP Nirlaba Indonesia
 
-> **Paket Instalasi Turnkey (1-Click Ready-to-Deploy) Sistem ERP Wakaf Berstandar PSAK 412 (PSAK 112) & LSP BWI**  
-> Inisiatif kolaboratif **Amal Produktif ([amalproduktif.or.id](https://amalproduktif.or.id))**, **Forum Wakaf Produktif (FWP / [fwp.or.id](https://fwp.or.id))**, dan **Asosiasi Nazhir Indonesia (ANI / [ani.or.id](https://ani.or.id))** untuk kemandirian, transparansi, dan tata kelola Nazhir di seluruh Indonesia.
-
-[![Odoo Version](https://img.shields.io/badge/Odoo-19.0%20%7C%2018.0%20(LTS)%20%7C%2017.0-714B67?logo=odoo&logoColor=white)](https://www.odoo.com)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17--alpine%20%7C%2016-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org)
-[![Proxy](https://img.shields.io/badge/Reverse%20Proxy-Caddy%202-00ADD8?logo=caddy&logoColor=white)](https://caddyserver.com)
-[![Accounting Standard](https://img.shields.io/badge/Standard-PSAK%20412%20(112)%20%7C%20LSP%20BWI-059669)](https://www.bwi.go.id)
-[![Collaboration](https://img.shields.io/badge/Initiative-Amal%20Produktif%20%C3%97%20FWP%20%C3%97%20ANI-10B981)](https://amalproduktif.or.id)
-[![Docker Compose](https://img.shields.io/badge/Docker%20Compose-v2-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![Docker](https://img.shields.io/badge/Docker-v2%20Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Odoo](https://img.shields.io/badge/Odoo-19.0%20%7C%2018.0%20LTS-714B67?logo=odoo&logoColor=white)](https://www.odoo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17%20%7C%2016%20Alpine-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Caddy](https://img.shields.io/badge/Caddy-2%20Alpine%20(Auto--SSL)-1F88C0?logo=caddy&logoColor=white)](https://caddyserver.com/)
+[![Compliance](https://img.shields.io/badge/Standards-PSAK%20412%20%7C%20PSAK%20109%20%7C%20ISAK%2035-brightgreen)](#standar-dan-regulasi)
 [![License](https://img.shields.io/badge/License-LGPL--3.0-blue.svg)](LICENSE)
 
----
+**`npo-odoo-docker`** adalah repositori instalasi 1-klik (*Turnkey Production Package*) untuk menggelar sistem ERP Odoo 19 / 18 LTS yang telah dioptimasi khusus untuk ekosistem Lembaga Nirlaba, Organisasi Pengelola Zakat (OPZ), Lembaga Pengelola Wakaf (Nazhir), dan Lembaga Kesejahteraan Sosial (LKS/Panti) di Indonesia.
 
-## 📋 Daftar Isi
-1. [Latar Belakang & Visi Proyek](#-latar-belakang--visi-proyek)
-2. [Arsitektur Sistem](#-arsitektur-sistem)
-3. [Spesifikasi Server Minimum](#-spesifikasi-server-minimum)
-4. [Panduan Cepat: Deploy Odoo Wakaf dalam 5 Menit](#-panduan-cepat-deploy-odoo-wakaf-dalam-5-menit)
-5. [Struktur Repositori](#-struktur-repositori)
-6. [Fitur Keamanan & Performa Produksi](#-fitur-keamanan--performa-produksi)
-7. [Ekosistem Modul Wakaf Amal Produktif, FWP & ANI](#-ekosistem-modul-wakaf-amal-produktif-fwp--ani)
-8. [Manajemen Operasional & Pemeliharaan](#-manajemen-operasional--pemeliharaan)
-   - [Perintah Docker Harian](#perintah-docker-harian)
-   - [Otomasi Backup Harian (Cron Job)](#otomasi-backup-harian-cron-job)
-   - [Pemulihan Data Bencana (Disaster Recovery)](#pemulihan-data-bencana-disaster-recovery)
-   - [Pembaruan Modul Wakaf](#pembaruan-modul-wakaf)
-9. [Troubleshooting & Tanya Jawab](#-troubleshooting--tanya-jawab)
-10. [Inisiator & Kontribusi](#-inisiator--kontribusi)
+Paket ini dirancang untuk dijalankan di VPS Linux (Ubuntu 22.04 LTS / Ubuntu 24.04 LTS) dengan konfigurasi otomatis multi-worker, auto-swap memory, auto-SSL Let's Encrypt, isolasi jaringan penuh (*zero host exposure*), pencadangan terpadu DB + Filestore, dan disaster recovery 1 perintah.
 
 ---
 
-## 🌟 Latar Belakang & Visi Proyek
-
-Pengelolaan wakaf di Indonesia menuntut akuntabilitas publik yang tinggi sesuai amanat **UU No. 41 Tahun 2004 tentang Wakaf**, standar akuntansi **PSAK 412: Akuntansi Wakaf** (sebelumnya diterbitkan sebagai **PSAK 112** pasca-rekodifikasi SAK Syariah oleh IAI), serta standar kompetensi kerja **LSP BWI (Badan Wakaf Indonesia)**.
-
-Banyak lembaga Nazhir di daerah memiliki keterbatasan dalam membangun infrastruktur TI mandiri dan sering terkendala biaya lisensi software komersial yang mahal. Oleh karena itu, **Amal Produktif** berkolaborasi bersama **Forum Wakaf Produktif (FWP)** dan **Asosiasi Nazhir Indonesia (ANI)** menghadirkan **`waqf-odoo-docker`** sebagai solusi instalasi instan (*turnkey package*). Paket ini memungkinkan Nazhir menyewa VPS Linux standar (Ubuntu 22.04/24.04), menjalankan satu perintah inisialisasi, dan langsung memiliki sistem ERP Wakaf siap produksi yang:
-
-- **Efisien**: Dioptimasi khusus untuk VPS ekonomis (4 GB – 8 GB RAM).
-- **Aman**: Isolasi port internal, proteksi pemilih database, dan sertifikat SSL otomatis.
-- **Patuh Syariah**: Terintegrasi langsung dengan modul akuntansi wakaf **PSAK 412 / 112** dan tata kelola Nazhir tersertifikasi **LSP BWI**.
+## Daftar Isi
+- [Arsitektur Sistem (3-Tier)](#arsitektur-sistem-3-tier)
+- [Standar dan Regulasi yang Didukung](#standar-dan-regulasi-yang-didukung)
+- [Spesifikasi Server & Hardware](#spesifikasi-server--hardware)
+- [Panduan Instalasi Cepat (Quick Start 1-Klik)](#panduan-instalasi-cepat-quick-start-1-klik)
+- [Pilihan Profil Sektor Nirlaba](#pilihan-profil-sektor-nirlaba)
+- [Tuning Multi-Worker & Alokasi Resource](#tuning-multi-worker--alokasi-resource)
+- [Keamanan Produksi & list_db = False](#keamanan-produksi--list_db--false)
+- [Operasional: Pencadangan & Pemulihan Bencana](#operasional-pencadangan--pemulihan-bencana)
+- [Dukungan Offsite Cloud Backup (Rclone)](#dukungan-offsite-cloud-backup-rclone)
+- [Struktur Direktori Repositori](#struktur-direktori-repositori)
+- [Troubleshooting & FAQ](#troubleshooting--faq)
 
 ---
 
-## 🏛️ Arsitektur Sistem
+## Arsitektur Sistem (3-Tier)
 
-Sistem dirancang dengan topologi 3-tier terisolasi yang mengedepankan keamanan dan kecepatan:
+Sistem menggunakan Docker Compose v2 dengan pemisahan 3 layer layanan yang terisolasi dalam private bridge network:
 
-```mermaid
-flowchart TD
-    subgraph Internet ["🌐 Internet Publik"]
-        User["Pengguna / Nazhir / Auditor\n(Browser / Mobile)"]
-    end
-
-    subgraph Host ["🖥️ Host Server (VPS Ubuntu)"]
-        subgraph Ports ["Port Terbuka Publik"]
-            P80["Port 80 (HTTP)"]
-            P443["Port 443 (HTTPS)"]
-        end
-
-        subgraph DockerNet ["🔒 Internal Bridge Network (waqf-network)"]
-            Proxy["Service 'proxy'\n(Caddy 2 Alpine)\n- Auto SSL Let's Encrypt\n- HTTP/3 & Gzip/Zstd\n- WebSocket Routing"]
-            Web["Service 'web'\n(Odoo 19.0 / 18.0 LTS / 17.0)\n- Multi-Worker Pre-fork\n- Proxy Mode True\n- PSAK 112/412 Engine"]
-            DB["Service 'db'\n(PostgreSQL 17 / 16 Alpine)\n- Tuned Buffer Cache\n- Healthchecked\n- Port 5432 Terisolasi"]
-            
-            Proxy -->|Trafik Web / :8069| Web
-            Proxy -->|WebSocket /websocket* :8072| Web
-            Web -->|TCP Internal:5432| DB
-        end
-
-        subgraph Storage ["💾 Persistent Volumes"]
-            VolWeb[("waqf_odoo_web_data\n(Filestore & Sessions)")]
-            VolDB[("waqf_odoo_db_data\n(Data PostgreSQL)")]
-            VolTLS[("waqf_caddy_data\n(Sertifikat SSL)")]
-            Addons[("./extra-addons\n(Modul PSAK 112 & FWP)")]
-        end
-
-        Web --- VolWeb
-        DB --- VolDB
-        Proxy --- VolTLS
-        Web --- Addons
-    end
-
-    User -->|HTTPS :443| P443 --> Proxy
-    User -->|Redirect HTTP :80| P80 --> Proxy
+```
+                            TRAFIK INTERNET (HTTPS / WSS)
+                                          │
+                                          ▼
+                ┌───────────────────────────────────────────────────┐
+                │             LAYER 1: REVERSE PROXY                │
+                │                (Caddy 2 Alpine)                   │
+                │   - Port Publik: 80 (HTTP) & 443 (HTTPS/QUIC)     │
+                │   - Otomasi Sertifikat SSL/TLS Let's Encrypt      │
+                │   - HTTP/3 QUIC Support & HSTS Hardening          │
+                └─────────────────┬───────────────┬─────────────────┘
+                                  │               │
+                     Trafik Web   │               │ WebSocket & Bus
+                     (Port 8069)  │               │ (Port 8072)
+                                  ▼               ▼
+                ┌───────────────────────────────────────────────────┐
+                │              LAYER 2: APPLICATION                │
+                │            (Odoo 19.0 / 18.0 LTS)                 │
+                │   - Multi-Worker Tuning: (Cores * 2) + 1          │
+                │   - Pustaka: openpyxl, qrcode, num2words          │
+                │   - Port 8069 & 8072 ISOLASI INTERNAL (Zero Host) │
+                └─────────────────────────┬─────────────────────────┘
+                                          │
+                                          │ Koneksi Database Internal
+                                          │ (Port 5432 - Tanpa Port Host)
+                                          ▼
+                ┌───────────────────────────────────────────────────┐
+                │               LAYER 3: DATABASE                   │
+                │         (PostgreSQL 17 / 16 Alpine)               │
+                │   - Buffer Tuning: shared_buffers 256MB+          │
+                │   - Healthcheck: pg_isready                       │
+                │   - ZERO HOST EXPOSURE (Tidak terbuka ke publik)  │
+                └───────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 💻 Spesifikasi Server Minimum
+## Standar dan Regulasi yang Didukung
 
-Paket ini dirancang agar dapat beroperasi secara stabil pada konfigurasi perangkat keras ekonomis:
-
-| Komponen | Spesifikasi Minimum | Rekomendasi Produksi |
+| Sektor Nirlaba | Regulasi / Standar Akuntansi | Regulator / Otoritas Pembina |
 | :--- | :--- | :--- |
-| **Sistem Operasi** | Ubuntu 22.04 LTS / 24.04 LTS | Ubuntu 24.04 LTS / Debian 12 |
-| **vCPU** | 2 Core | 4 Core |
-| **RAM** | 4 GB (*wajib Swap 2 GB*) | 8 GB RAM |
-| **Penyimpanan** | 25 GB SSD / NVMe | 50 GB NVMe |
-| **Jaringan** | 1 IPv4 Publik statis | 1 IPv4 Publik statis |
-| **Akses Domain** | 1 Subdomain (misal: `erp.nazhirwakaf.id`) | DNS A-Record mengarah ke IP VPS |
+| **Sektor Wakaf** | **PSAK 412** (Sebelumnya PSAK 112) & Standar LSP BWI | Badan Wakaf Indonesia (BWI) & Kemenag RI |
+| **Sektor Zakat & Donasi** | **PSAK 109** (Akuntansi ZIS) & Standar BAZNAS | Badan Amil Zakat Nasional (BAZNAS) & Kemenag RI |
+| **Sektor LKS / Panti Sosial** | **ISAK 35** (Penyajian Lapkeu Nonlaba) & BALAKS | Kementerian Sosial RI (Kemensos) |
+| **Master Data Terpadu** | NIK, KK, NPWP 16 Digit, NIB, Kode Wilayah Kemendagri | Kemendagri, Ditjen Pajak, BKPM |
 
 ---
 
-## ⚡ Panduan Cepat: Deploy Odoo Wakaf dalam 5 Menit
+## Spesifikasi Server & Hardware
 
-### Langkah 1: Kloning Repositori ke VPS
-Masuk ke terminal server VPS Anda via SSH, lalu kloning repositori ini:
+| Parameter | Kebutuhan Minimum (VPS Kecil) | Rekomendasi Produksi (VPS Menengah) |
+| :--- | :--- | :--- |
+| **Sistem Operasi** | Ubuntu 22.04 LTS / Ubuntu 24.04 LTS | Ubuntu 22.04 LTS / 24.04 LTS / Debian 12 |
+| **CPU Core** | 2 vCPU Core | 4 vCPU Core atau lebih |
+| **RAM Fisik** | 4 GB | 8 GB s/d 16 GB |
+| **Swap Memory** | **2 GB** (dibuat otomatis oleh skrip) | 2 GB s/d 4 GB |
+| **Storage (Disk)** | 40 GB NVMe / SSD | 100 GB+ NVMe SSD |
+| **Port Publik** | 80/TCP, 443/TCP, 443/UDP | 80/TCP, 443/TCP, 443/UDP |
+
+> [!NOTE]
+> Jika VPS Anda memiliki RAM kurang dari 8 GB, skrip `init-setup.sh` akan secara otomatis membuat dan mengaktifkan **Swap File 2 GB** (`/swapfile`) dengan prioritas swap ramah RAM (`vm.swappiness=10`) untuk mencegah proses Odoo terhenti karena *Out-Of-Memory* (OOM Killer).
+
+---
+
+## Panduan Instalasi Cepat (Quick Start 1-Klik)
+
+### Langkah 1: Kloning Repositori di VPS
+
+Masuk ke server VPS Linux Anda melalui SSH, lalu unduh repositori ini:
+
 ```bash
-git clone https://github.com/forumwakafproduktif/waqf-odoo-docker.git /opt/waqf-odoo
-cd /opt/waqf-odoo
+git clone https://github.com/ridloabelian/waqf-odoo-docker.git npo-odoo-docker
+cd npo-odoo-docker
 ```
 
-### Langkah 2: Jalankan Inisialisasi Otomatis
-Jalankan skrip `init-setup.sh`. Skrip ini akan secara otomatis:
-1. Memeriksa ketersediaan Docker dan Docker Compose.
-2. Mendeteksi RAM dan membuat **Swap File 2 GB** jika belum tersedia (mencegah server crash).
-3. Meng-generate kata sandi acak yang kuat untuk Database dan Master Admin Odoo ke dalam file `.env`.
-4. Mengonfigurasi file `config/odoo.conf` secara otomatis.
-5. Menyiapkan folder modul dan hak akses direktori.
+### Langkah 2: Berikan Izin Eksekusi & Jalankan Setup Wizard
+
+Jalankan wizard interaktif sebagai `root` atau pengguna berhak `sudo`:
 
 ```bash
-chmod +x init-setup.sh
+chmod +x init-setup.sh scripts/*.sh
 sudo ./init-setup.sh
 ```
 
-### Langkah 3: Sesuaikan Domain & Email SSL
-Buka file `.env` menggunakan teks editor:
+### Langkah 3: Pilih Profil Sistem Nirlaba Anda
+
+Wizard akan menyajikan menu interaktif di terminal:
+
+```text
+----------------------------------------------------------------------
+Pilih Profil Sistem Nirlaba Anda:
+[1] Sektor Wakaf (Badan Wakaf Indonesia - PSAK 412)
+    -> Mengunduh: npo-core-modules + waqf-odoo-modules
+[2] Sektor Zakat & Donasi (BAZNAS - PSAK 109)
+    -> Mengunduh: npo-core-modules + zakat-odoo-modules
+[3] Sektor Lembaga Kesejahteraan Sosial / Panti (Kemensos - ISAK 35)
+    -> Mengunduh: npo-core-modules + lks-odoo-modules
+[4] Yayasan Terpadu / All-in-One (Wakaf + Zakat + LKS)
+    -> Mengunduh seluruh ekosistem modul ke ./extra-addons
+----------------------------------------------------------------------
+Masukkan pilihan profil [1/2/3/4] (default: 1):
+```
+
+Skrip akan secara otomatis:
+1. Memeriksa Docker & Docker Compose v2.
+2. Mengonfigurasi Swap File 2 GB jika RAM < 8 GB.
+3. Mengunduh dan menata modul Odoo sesuai profil yang dipilih.
+4. Men-generate password acak berkekuatan tinggi untuk Database PostgreSQL & Odoo Master Admin ke `.env`.
+5. Mengompilasi `config/odoo.conf` dengan `addons_path` yang sesuai dan proteksi produksi `list_db = False`.
+
+### Langkah 4: Sesuaikan Nama Domain & Email SSL
+
+Buka file konfigurasi `.env`:
+
 ```bash
 nano .env
 ```
-Ubah dua parameter berikut:
-```env
-DOMAIN_NAME=erp.nazhiranda.or.id
-ACME_EMAIL=admin@nazhiranda.or.id
-```
-*(Pastikan subdomain `erp.nazhiranda.or.id` sudah diarahkan melalui DNS A-Record ke IP server VPS Anda).*
 
-### Langkah 4: Jalankan Service Docker
-Nyalakan seluruh service dengan satu perintah:
+Ubah dua variabel berikut:
+```ini
+DOMAIN_NAME=erp.yayasananda.or.id
+ACME_EMAIL=admin@yayasananda.or.id
+```
+*(Pastikan DNS A Record domain Anda sudah diarahkan ke IP publik VPS).*
+
+### Langkah 5: Nyalakan Seluruh Layanan dengan Docker Compose
+
 ```bash
 docker compose up -d
 ```
-Pantau proses peluncuran container:
+
+Pantau proses *startup*:
 ```bash
 docker compose logs -f
 ```
-Tunggu hingga muncul pesan `odoo.modules.loading: Modules loaded` dan `Caddy: certificate obtained successfully`.
 
-### Langkah 5: Inisiasi Database Odoo Wakaf
-1. Buka peramban (browser) dan akses:
+### Langkah 6: Pembuatan Database Pertama Kali
+
+1. Buka browser dan kunjungi:
    ```text
-   https://erp.nazhiranda.or.id/web/database/manager
+   https://erp.yayasananda.or.id/web/database/manager
    ```
-2. Masukkan **Master Password** yang telah digenerate (lihat di baris `ADMIN_PASSWORD` pada file `.env`).
-3. Buat database baru:
-   - **Database Name**: misal `waqf_prod`
-   - **Email / Login**: email administrator Anda
-   - **Password**: password login admin Anda
-   - **Language**: *Indonesian / Bahasa Indonesia*
-   - **Country**: *Indonesia*
-4. Klik **Create Database**. Selamat! Sistem ERP Wakaf Anda sudah aktif dan terenkripsi SSL A+.
+2. Masukkan **Master Password** yang telah digenerate di file `.env` (lihat baris `ADMIN_PASSWORD=...`).
+3. Buat database baru (misalnya `npo_production`), pilih bahasa **Indonesian (ID)**, dan centang atau hilangkan data demo sesuai kebutuhan.
+4. Setelah database selesai dibuat, sistem akan langsung terkunci aman karena proteksi `list_db = False`.
 
 ---
 
-## 📂 Struktur Repositori
+## Pilihan Profil Sektor Nirlaba
 
-```text
-waqf-odoo-docker/
-├── .env.example              # Template variabel lingkungan (kredensial, port, tuning)
-├── .gitignore                # Filter file sensitif, backup, dan cache
-├── docker-compose.yml        # Konfigurasi orkestrasi 3-tier (db: postgres 17, web: odoo 19, proxy)
-├── Dockerfile                # Image Odoo 19 + dependensi PSAK 112 (num2words, openpyxl, qrcode)
-├── init-setup.sh             # Skrip automasi 1-klik provisioning server
-├── config/
-│   ├── odoo.conf             # Konfigurasi Odoo 19 / 18 LTS / 17 (multi-worker, tuning, PSAK 412/112)
-│   ├── odoo.conf.template    # Template konfigurasi untuk injeksi variabel env
-│   └── Caddyfile             # Konfigurasi Caddy reverse proxy, Auto-SSL & WebSocket
-├── extra-addons/             # Folder modul ekosistem Wakaf FWP (mounted ke Odoo)
-│   ├── .gitkeep
-│   └── README.md             # Panduan instalasi modul custom
-└── scripts/
-    ├── backup.sh             # Skrip backup harian (Postgres + Filestore + Rclone offsite)
-    ├── restore.sh            # Skrip pemulihan bencana (Disaster Recovery)
-    └── download-modules.sh   # Skrip pembantu unduh/update modul wakaf FWP
+### Profil 1: Sektor Wakaf (BWI - PSAK 412 / 112)
+Dikhususkan untuk Badan Wakaf Indonesia (BWI), Nazhir Perorangan, Nazhir Organisasi, dan Nazhir Badan Hukum.
+- **npo-core-modules**: Master data identitas (NIK/KK), kode wilayah Kemendagri, engine asesmen, modul penyaluran dasar.
+- **waqf-odoo-modules**:
+  - `waqf_core`: Pendaftaran wakif, jenis wakaf (uang, aset bergerak, tidak bergerak), Akta Ikrar Wakaf (AIW), Sertifikat Wakaf.
+  - `l10n_id_waqf_psak112`: Bagan Akun Standar (COA) Wakaf, Neraca, Laporan Rincian Aset Wakaf, Laporan Aktivitas, Perubahan Aset Neto, dan Hak Nazhir 10%.
+  - `waqf_asset_management`: Inventarisasi tanah wakaf, sertifikasi BPN, status produktif tanah/bangunan, peta koordinat GPS.
+  - `waqf_distribution`: Penyaluran hasil pengelolaan wakaf kepada Mauquf 'Alaih (penerima manfaat wakaf).
+
+### Profil 2: Sektor Zakat & Donasi (BAZNAS - PSAK 109)
+Dikhususkan untuk BAZNAS Provinsi/Kabupaten/Kota, Lembaga Amil Zakat (LAZ Nasional/Daerah), dan Unit Pengumpul Zakat (UPZ).
+- **npo-core-modules**: Identitas muzakki/mustahik terpadu, verifikasi kependudukan.
+- **zakat-odoo-modules**:
+  - `zakat_core`: Manajemen Muzakki, Mustahik (8 Asnaf BAZNAS), dan Kalkulator Nisab otomatis (Zakat Maal, Profesi, Fitrah, Pertanian).
+  - `l10n_id_zakat_psak109`: Bagan Akun Standar (COA) Dana Zakat, Dana Infak/Sedekah, Dana Amil, dan Dana Non-Halal, Laporan Perubahan Dana PSAK 109.
+  - `zakat_collection`: Penerimaan ZIS, penerbitan Bukti Setor Zakat (BSZ) resmi ber-QR Code untuk pengurangan pajak penghasilan.
+  - `zakat_distribution`: Penyaluran dana 8 asnaf (Program Konsumtif & Produktif pemberdayaan ekonomi).
+
+### Profil 3: Sektor Lembaga Kesejahteraan Sosial / Panti (Kemensos - ISAK 35)
+Dikhususkan untuk Panti Asuhan, Panti Werda/Lansia, Panti Rehabilitasi Disabilitas, dan LKS mitra Kemensos RI.
+- **npo-core-modules**: Basis data penerima manfaat dan riwayat bantuan.
+- **lks-odoo-modules**:
+  - `lks_core`: Registrasi Pemerlu Pelayanan Kesejahteraan Sosial (PPKS), Buku Induk Panti, kapasitas asrama/kamar.
+  - `l10n_id_nonprofit_isak35`: Akuntansi entitas berorientasi nonlaba ISAK 35 (Laporan Posisi Keuangan, Penghasilan Komprehensif, Arus Kas).
+  - `lks_social_care`: Asuhan sosial klaster anak, lansia, disabilitas, monitoring tumbuh kembang dan rekam medis sosial.
+  - `lks_balaks_compliance`: Standar instrumen akreditasi Badan Akreditasi Lembaga Kesejahteraan Sosial (BALAKS) Kemensos RI.
+
+### Profil 4: Yayasan Terpadu / All-in-One (Wakaf + Zakat + LKS)
+Mengintegrasikan seluruh ekosistem modul nirlaba dalam satu instalasi Odoo untuk organisasi induk atau yayasan filantropi berskala nasional yang mengelola program wakaf, penghimpunan zakat, serta operasional panti asuhan secara bersamaan.
+
+---
+
+## Tuning Multi-Worker & Alokasi Resource
+
+Odoo dalam mode multi-worker memisahkan proses penanganan HTTP request dan proses komputasi berat (cron & longpolling).
+
+### 1. Rumus Perhitungan Worker Ideal:
+$$\text{Workers} = (\text{CPU Cores} \times 2) + 1$$
+
+Contoh rekomendasi:
+- **VPS 2 vCPU**: `ODOO_WORKERS=4` atau `5`
+- **VPS 4 vCPU**: `ODOO_WORKERS=8` atau `9`
+- **VPS 8 vCPU**: `ODOO_WORKERS=17`
+
+### 2. Parameter Memori & Timeout di `.env` & `odoo.conf`:
+```ini
+# Batas RAM per worker (2 GB Soft / 2.5 GB Hard)
+ODOO_LIMIT_MEMORY_SOFT=2147483648
+ODOO_LIMIT_MEMORY_HARD=2684354560
+
+# Timeout komputasi diperpanjang untuk laporan keuangan akuntansi nirlaba yang tebal
+ODOO_LIMIT_TIME_CPU=600
+ODOO_LIMIT_TIME_REAL=1200
+
+# Worker didaur ulang setiap 8.192 request untuk mencegah memory leak Python
+limit_request = 8192
 ```
 
----
-
-## 🛡️ Fitur Keamanan & Performa Produksi
-
-### 1. Isolasi Port (Zero Host Exposure)
-Port PostgreSQL (`5432`) dan port internal Odoo (`8069`, `8072`) **tidak dibuka** ke internet publik. Hanya container Caddy yang mendengarkan port `80` dan `443` di host. Semua komunikasi antar-service berlangsung melalui bridge network virtual terenkapsulasi `waqf-network`.
-
-### 2. Proteksi Pemilih Database (`list_db = False`)
-Pada server produksi publik, pemilih database dimatikan (`list_db = False`). Pengunjung umum tidak dapat melihat daftar database atau mencoba meretas database manager. Akses pemeliharaan database hanya dapat diakses melalui URL spesifik `/web/database/manager` dengan otentikasi Master Password.
-
-### 3. Penanganan WebSocket Odoo (18 LTS, 19, & 17) yang Sempurna
-Odoo (mulai versi 16, 17, 18 LTS hingga 19) memisahkan trafik Web (`8069`) dan WebSocket (`8072`) saat berjalan dalam mode multi-worker. Konfigurasi Caddyfile pada repositori ini telah dikonfigurasi secara spesifik:
-```caddy
-handle /websocket* {
-    reverse_proxy web:8072 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
-        header_up X-Forwarded-Proto {scheme}
-    }
-}
-```
-Hal ini memastikan fitur notifikasi real-time, live chat, dan modul discuss tidak pernah mengalami pemutusan koneksi (*WebSocket handshake dropped*).
-
-### 4. Multi-Worker Tuning & Pencegahan OOM Crash
-Dikonfigurasi untuk VPS 4 GB - 8 GB RAM dengan formula:
-- **Workers**: 4 worker proses + 1 cron thread.
-- **Memory Soft Limit**: 2048 MB (peringatan daur ulang).
-- **Memory Hard Limit**: 2560 MB (terminasi paksa sebelum mengganggu PostgreSQL).
-- **Execution Timeout**: 600–1200 detik untuk memastikan perhitungan laporan buku besar akuntansi wakaf tahunan berjalan tuntas tanpa terputus timeout HTTP.
+### 3. Tuning Buffer PostgreSQL (`command:` di docker-compose.yml):
+PostgreSQL disetel dengan konfigurasi performa tinggi untuk VPS 4 GB - 16 GB:
+- `shared_buffers = 256MB` s/d `1GB` (25% dari RAM)
+- `effective_cache_size = 768MB` s/d `3GB` (75% dari RAM)
+- `work_mem = 16MB`
+- `maintenance_work_mem = 64MB`
+- `checkpoint_completion_target = 0.9`
 
 ---
 
-## 🧩 Ekosistem Modul Wakaf Amal Produktif, FWP & ANI
+## Keamanan Produksi & list_db = False
 
-Direktori `./extra-addons` disiapkan untuk memuat modul-modul resmi hasil kolaborasi Amal Produktif, Forum Wakaf Produktif (FWP), dan Asosiasi Nazhir Indonesia (ANI):
+Pada lingkungan produksi perbankan syariah dan lembaga publik, antarmuka pembuat database (`/web/database/manager` dan `/web/database/selector`) **wajib dikunci** dari akses publik untuk mencegah:
+1. Pihak luar mengetahui nama database yayasan Anda (*database enumeration*).
+2. Serangan *brute force* terhadap Master Password.
+3. Pembuatan database palsu yang membebani disk VPS.
 
-| Modul | Standar Acuan | Fungsi Utama |
-| :--- | :--- | :--- |
-| **`waqf_core`** | UU No. 41/2004 & LSP BWI | Master Data Wakif, Mauquf 'Alaih, Akta Ikrar Wakaf (AIW/APAIW), legalitas sertifikat tanah wakaf. |
-| **`l10n_id_waqf_psak112`** | PSAK 412 / 112 (IAI) | Bagan Akun Standar Akuntansi Wakaf (COA), Laporan Posisi Keuangan, Laporan Rincian Aset Wakaf, Laporan Aktivitas, Laporan Arus Kas, dan Catatan atas Laporan Keuangan (CALK). |
-| **`waqf_cash`** | Fatwa DSN-MUI & BWI | Tata kelola Wakaf Uang, penempatan portofolio syariah (CWLS, SBSN, Deposito Mudharabah). |
-| **`waqf_property`** | BWI, FWP & ANI | Tata kelola Wakaf Produktif (Tanah, Ruko, Rumah Sakit), pengelolaan aset sewa dan pemeliharaan. |
-| **`waqf_distribution`** | Syariah & UU Wakaf | Distribusi surplus hasil pengelolaan wakaf ke penerima manfaat serta alokasi hak nazhir (maks. 10%). |
-
-Untuk mengunduh modul-modul tersebut, cukup jalankan:
-```bash
-./scripts/download-modules.sh
+### Konfigurasi Proteksi `list_db = False`:
+File `config/odoo.conf` secara baku disetel:
+```ini
+list_db = False
 ```
 
----
-
-## 🛠️ Manajemen Operasional & Pemeliharaan
-
-### Perintah Docker Harian
-| Kebutuhan | Perintah |
-| :--- | :--- |
-| Memeriksa status container | `docker compose ps` |
-| Melihat log seluruh service | `docker compose logs -f` |
-| Melihat log Odoo saja | `docker compose logs -f web` |
-| Merestart service Odoo | `docker compose restart web` |
-| Menghentikan seluruh service | `docker compose down` |
-| Menjalankan kembali di latar belakang | `docker compose up -d` |
+### Prosedur Manajemen Database:
+- **Membuat Database Pertama Kali**:
+  Akses langsung URL lengkap: `https://<domain-anda>/web/database/manager`. Masukkan Master Password dari `.env`.
+- **Mengunci Sistem Kembali (Production Lock)**:
+  Cukup jalankan satu perintah:
+  ```bash
+  ./scripts/lock-production.sh
+  ```
+  Skrip ini akan memastikan `list_db = False` aktif dan merestart container Odoo web secara *graceful*.
 
 ---
 
-### Otomasi Backup Harian (Cron Job)
-Sistem dilengkapi skrip pencadangan otomatis `scripts/backup.sh` yang melakukan dump basis data PostgreSQL sekaligus mengompresi filestore Odoo ke dalam format `.tar.gz`, serta menghapus backup yang berusia lebih dari 7 hari.
+## Operasional: Pencadangan & Pemulihan Bencana
 
-Uji coba backup manual:
+### 1. Pencadangan Otomatis (`scripts/backup.sh`)
+Skrip ini mengekspor Database PostgreSQL (`pg_dump` dikompresi `gzip`) dan seluruh berkas fisik Odoo Filestore (`/var/lib/odoo/filestore`), lalu mengemasnya menjadi arsip tunggal berstempel waktu: `npo_backup_YYYYMMDD_HHMMSS.tar.gz`.
+
+Jalankan manual:
 ```bash
 ./scripts/backup.sh
 ```
 
-Untuk menjadwalkan backup otomatis setiap hari pukul **02.00 dini hari**:
-1. Buka crontab:
-   ```bash
-   crontab -e
-   ```
-2. Tambahkan baris berikut di bagian paling bawah:
-   ```cron
-   0 2 * * * cd /opt/waqf-odoo && ./scripts/backup.sh >> /var/log/waqf_backup.log 2>&1
-   ```
-
-#### Dukungan Upload Offsite (Google Drive / S3 / R2):
-Anda dapat mengaktifkan backup offsite menggunakan `rclone`. Cukup isi variabel `RCLONE_REMOTE` pada file `.env`:
-```env
-RCLONE_REMOTE=gdrive_fwp
-RCLONE_DEST_PATH=WaqfBackups
-```
-
----
-
-### Pemulihan Data Bencana (Disaster Recovery)
-Jika terjadi insiden atau migrasi server, Anda dapat memulihkan seluruh data (database dan filestore dokumen) hanya dengan satu perintah:
+#### Otomasi via Cron Job Linux:
+Jadwalkan pencadangan setiap hari pukul 02.00 dini hari dengan retensi lokal 7 hari:
 ```bash
-./scripts/restore.sh backups/waqf_backup_YYYYMMDD_HHMMSS.tar.gz
+crontab -e
 ```
-Skrip akan meminta konfirmasi `YA` sebelum menimpa data demi mencegah kesalahan operasional.
+Tambahkan baris berikut di baris paling bawah:
+```cron
+0 2 * * * cd /root/npo-odoo-docker && ./scripts/backup.sh >> /var/log/npo_backup.log 2>&1
+```
+
+### 2. Pemulihan Bencana 1-Perintah (`scripts/restore.sh`)
+Jika terjadi kerusakan sistem, *human error*, atau Anda memindahkan data ke VPS baru:
+
+```bash
+./scripts/restore.sh backups/npo_backup_YYYYMMDD_HHMMSS.tar.gz
+```
+Skrip akan:
+1. Meminta konfirmasi pengetikan kata `YA`.
+2. Menghentikan service web Odoo sementara.
+3. Me-reset dan memulihkan seluruh struktur tabel & isi PostgreSQL.
+4. Memulihkan seluruh berkas attachment di Filestore.
+5. Menyalakan kembali service web Odoo.
 
 ---
 
-### Pembaruan Modul Wakaf
-Jika tim FWP merilis pembaruan pada modul akuntansi PSAK 112:
-1. Jalankan skrip pembaruan modul:
+## Dukungan Offsite Cloud Backup (Rclone)
+
+Untuk mencegah kehilangan data jika VPS terbakar atau terjadi insiden di datacenter penyedia hosting, sistem mendukung sinkronisasi otomatis ke penyimpanan cloud offsite menggunakan **Rclone** (Google Drive, AWS S3, Cloudflare R2, MinIO, atau Wasabi).
+
+### Cara Mengaktifkan:
+1. Pasang rclone di VPS:
    ```bash
-   ./scripts/download-modules.sh
+   sudo apt-get install -y rclone
    ```
-2. Restart service Odoo:
+2. Hubungkan akun cloud Anda:
+   ```bash
+   rclone config
+   ```
+   *(Beri nama remote, misalnya: `gdrive_yayasan`)*.
+3. Masukkan nama remote tersebut ke file `.env`:
+   ```ini
+   RCLONE_REMOTE=gdrive_yayasan
+   RCLONE_DEST_PATH=OdooBackups/NPO
+   ```
+4. Setiap kali `./scripts/backup.sh` berjalan, arsip cadangan akan otomatis diunggah ke cloud dan file cadangan di cloud yang lebih tua dari `BACKUP_RETENTION_DAYS` (7 hari) akan otomatis dibersihkan.
+
+---
+
+## Struktur Direktori Repositori
+
+```text
+npo-odoo-docker/
+├── .env.example                # Template konfigurasi variabel lingkungan
+├── .env                        # File konfigurasi aktif (kredensial & domain)
+├── Dockerfile                  # Odoo 19/18 image dengan dependensi Python lengkap
+├── docker-compose.yml          # Konfigurasi 3-tier: Caddy, Odoo Web, PostgreSQL
+├── init-setup.sh               # Wizard 1-klik instalasi, swap tuning & modul selector
+├── README.md                   # Dokumentasi teknis & panduan instalasi
+├── config/
+│   ├── Caddyfile               # Aturan Reverse Proxy, Auto-SSL & WebSocket 8072
+│   ├── odoo.conf.template      # Template konfigurasi Odoo produksi
+│   └── odoo.conf               # Konfigurasi aktif Odoo
+├── scripts/
+│   ├── backup.sh               # Otomasi backup harian DB + Filestore (+ Rclone)
+│   ├── restore.sh              # Skrip pemulihan bencana (Disaster Recovery) 1-klik
+│   ├── lock-production.sh      # Skrip penguncian keamanan list_db = False
+│   └── download-modules.sh     # Utilitas pembaruan modul sektor nirlaba
+├── extra-addons/               # Volume addons yang dimounting ke dalam container
+├── npo-core-modules/           # Modul inti NPO (Kependudukan, Asesmen, Penyaluran)
+├── waqf-odoo-modules/          # Ekosistem Modul Sektor Wakaf (BWI & PSAK 412)
+├── zakat-odoo-modules/         # Ekosistem Modul Sektor Zakat (BAZNAS & PSAK 109)
+├── lks-odoo-modules/           # Ekosistem Modul Sektor LKS/Panti (Kemensos & ISAK 35)
+└── backups/                    # Lokasi penyimpanan arsip cadangan lokal (.tar.gz)
+```
+
+---
+
+## Troubleshooting & FAQ
+
+### 1. Port 80 atau 443 sudah digunakan (*Bind address already in use*)
+Penyebab: VPS Anda sudah menjalankan Apache atau Nginx bawaan OS.
+Solusi: Hentikan dan nonaktifkan web server bawaan tersebut:
+```bash
+sudo systemctl stop apache2 nginx 2>/dev/null || true
+sudo systemctl disable apache2 nginx 2>/dev/null || true
+docker compose restart proxy
+```
+
+### 2. Sertifikat SSL Let's Encrypt Gagal Dibuat
+Penyebab: DNS A Record domain Anda belum mengarah ke IP publik VPS, atau firewall VPS menutup port 80/443.
+Solusi:
+1. Pastikan `ping <nama-domain>` menghasilkan IP VPS Anda.
+2. Buka firewall UFW:
+   ```bash
+   sudo ufw allow 80/tcp
+   sudo ufw allow 443/tcp
+   sudo ufw allow 443/udp
+   ```
+3. Periksa log Caddy:
+   ```bash
+   docker compose logs proxy
+   ```
+
+### 3. Mengubah Profil Instalasi Setelah Deploy
+Jika Anda awalnya memilih Profil 1 (Wakaf) lalu ingin beralih ke Profil 4 (All-in-One):
+1. Jalankan kembali:
+   ```bash
+   ./init-setup.sh --profile 4
+   ```
+2. Restart container web:
    ```bash
    docker compose restart web
    ```
-3. Di web browser: Buka **Apps** -> klik **Update Apps List** -> klik **Upgrade** pada modul yang diperbarui.
+3. Buka Odoo -> Aktifkan Developer Mode -> Apps -> Update Apps List.
+
+### 4. Perintah Operasional Docker yang Sering Digunakan
+- **Melihat status container**: `docker compose ps`
+- **Melihat log real-time**: `docker compose logs -f`
+- **Melihat log Odoo saja**: `docker compose logs -f web`
+- **Restart layanan Odoo**: `docker compose restart web`
+- **Menghentikan seluruh sistem**: `docker compose down`
+- **Menyalakan kembali**: `docker compose up -d`
 
 ---
 
-## ❓ Troubleshooting & Tanya Jawab
+## Kontribusi & Lisensi
 
-<details>
-<summary><b>1. Browser menampilkan pesan "Not Secure" atau sertifikat SSL gagal terbit?</b></summary>
-<br>
-Pastikan domain yang Anda masukkan di <code>.env</code> sudah memiliki DNS A-Record yang benar-benar mengarah ke IP publik VPS Anda. Caddy membutuhkan akses ke port 80 dan 443 terbuka dari luar untuk menyelesaikan tantangan ACME Let's Encrypt. Periksa log Caddy dengan:
-<pre><code>docker compose logs proxy</code></pre>
-</details>
+Inisiatif repositori ini dikembangkan secara terbuka untuk memodernisasi tata kelola teknologi informasi organisasi nirlaba, wakaf, dan zakat di Indonesia.
 
-<details>
-<summary><b>2. Fitur Chat / Discuss sering muncul tulisan "Connection Lost"?</b></summary>
-<br>
-Ini biasanya disebabkan oleh proxy yang tidak meneruskan request <code>/websocket</code> ke port <code>8072</code>. Pastikan Anda menggunakan file <code>config/Caddyfile</code> dan <code>config/odoo.conf</code> bawaan repositori ini, serta pastikan nilai <code>proxy_mode = True</code> aktif.
-</details>
-
-<details>
-<summary><b>3. Server mendadak lambat atau container Database mati (Killed / Out of Memory)?</b></summary>
-<br>
-Pada VPS dengan RAM 4 GB, Odoo dapat menghabiskan memori saat mengompilasi laporan keuangan besar. Pastikan Swap Memory aktif dengan memeriksa perintah <code>free -h</code>. Jika Swap 0, jalankan kembali <code>sudo ./init-setup.sh</code> untuk mengaktifkan Swap 2 GB.
-</details>
-
-<details>
-<summary><b>4. Bagaimana cara mengubah Master Password Odoo di kemudian hari?</b></summary>
-<br>
-Ubah nilai <code>ADMIN_PASSWORD</code> di dalam file <code>.env</code>, lalu jalankan kembali <code>./init-setup.sh</code> untuk mensinkronkannya ke <code>config/odoo.conf</code>, kemudian restart Odoo:
-<pre><code>docker compose restart web</code></pre>
-</details>
-
----
-
-## 🤝 Inisiator & Kontribusi
-
-Proyek ini bersifat sumber terbuka (Open-Source) di bawah lisensi **LGPL-3.0**. Diinisiasi dan dikembangkan secara kolaboratif oleh:
-- **Amal Produktif** – [amalproduktif.or.id](https://amalproduktif.or.id) (*Lembaga Nazhir Wakaf Produktif & Lead Technical Maintainer*)
-- **Forum Wakaf Produktif (FWP)** – [fwp.or.id](https://fwp.or.id) (*Wadah Kolaborasi Nazhir Produktif Nasional*)
-- **Asosiasi Nazhir Indonesia (ANI)** – [ani.or.id](https://ani.or.id) (*Asosiasi Resmi Profesi & Kelembagaan Nazhir Indonesia*)
-- **Didukung oleh Standar Kompetensi**: LSP Badan Wakaf Indonesia (BWI) & DSAS IAI (PSAK 412/112)
-
-Kami mengundang developer, akuntan syariah, akademisi, dan praktisi wakaf di seluruh Indonesia untuk berkontribusi.
-- **Laporkan Masalah / Permintaan Fitur**: Silakan buat *Issue* atau *Pull Request* pada repositori ini.
-
----
-*Semoga menjadi amal jariyah bagi para kontributor dan memudahkan seluruh Nazhir di Indonesia mengelola amanah wakaf secara profesional, akuntabel, dan transparan.*
+- **Lisensi**: GNU Lesser General Public License v3.0 (LGPL-3.0)
+- **Kompatibilitas**: Odoo 19.0 Community, Odoo 18.0 LTS Community, Odoo Enterprise.

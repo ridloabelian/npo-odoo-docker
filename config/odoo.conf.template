@@ -1,48 +1,48 @@
 [options]
 ; ==============================================================================
-; KONFIGURASI PRODUKSI ODOO 19 / 18 LTS / 17 - AMAL PRODUKTIF, FWP & ANI
-; Disesuaikan untuk ERP Wakaf Standar PSAK 412 (PSAK 112) & LSP BWI
+; KONFIGURASI PRODUKSI ODOO 19 / 18 LTS - NPO ODOO DOCKER
+; Sistem ERP Terpadu Nirlaba Indonesia (PSAK 412, PSAK 109, ISAK 35)
 ; ==============================================================================
 
 ; --- Direktori Addons & Data ---
-addons_path = /mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
+addons_path = ${ODOO_ADDONS_PATH}
 data_dir = /var/lib/odoo
 
 ; --- Keamanan & Master Password ---
-; Master password untuk manajemen database (digenerate oleh init-setup.sh)
+; Master password untuk manajemen database (digenerate otomatis oleh init-setup.sh)
 admin_passwd = ${ADMIN_PASSWORD}
 
-; Sembunyikan pemilih database dari publik demi keamanan (True saat inisiasi, False di produksi)
-list_db = False
+; Proteksi keamanan produksi: Sembunyikan pemilih database dari publik
+; Nilai diset False di produksi untuk mencegah enumerasi database & akses sembarangan
+list_db = ${LIST_DB}
 
-; Aktifkan proxy mode agar Odoo mematuhi header X-Forwarded-* dari Reverse Proxy (Caddy/Nginx)
+; Aktifkan proxy mode agar Odoo mengenali header X-Forwarded-* dari Caddy Reverse Proxy
 proxy_mode = True
 
-; --- Konfigurasi Port & Jaringan ---
+; --- Konfigurasi Port & Jaringan Internal ---
 http_interface = 0.0.0.0
 http_port = 8069
 xmlrpc_port = 8069
 gevent_port = 8072
 
-; --- Multi-Worker Tuning (Optimasi VPS 4 GB - 8 GB RAM) ---
-; Rumus: (CPU Cores * 2) + 1. Standar 4 worker untuk 2 vCPU VPS.
+; --- Multi-Worker Tuning (Optimasi VPS 4 GB - 16 GB RAM) ---
+; Rumus worker: (CPU Cores * 2) + 1
 workers = ${ODOO_WORKERS}
 max_cron_threads = 1
 
 ; Batas memori per proses worker (dalam bytes)
-; Soft: 2048 MB, Hard: 2560 MB
 limit_memory_soft = ${ODOO_LIMIT_MEMORY_SOFT}
 limit_memory_hard = ${ODOO_LIMIT_MEMORY_HARD}
 
-; Daur ulang worker setelah melayani 8192 request untuk mencegah memory leak
+; Daur ulang worker setelah melayani request untuk mencegah memory leak
 limit_request = 8192
 
-; Timeout eksekusi (detik) - Diperpanjang untuk laporan keuangan PSAK 112 yang kompleks
+; Batas waktu eksekusi CPU & Real-time (detik) untuk laporan keuangan kompleks
 limit_time_cpu = ${ODOO_LIMIT_TIME_CPU}
 limit_time_real = ${ODOO_LIMIT_TIME_REAL}
 
 ; --- Logging ---
-; Log diarahkan ke stdout agar dapat dipantau melalui 'docker compose logs -f web'
+; Log diarahkan ke stdout agar dapat dipantau via 'docker compose logs -f web'
 logfile = False
 log_level = info
 

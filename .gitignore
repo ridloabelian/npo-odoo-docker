@@ -12,6 +12,18 @@ backups/temp/
 odoo-data/
 postgres-data/
 /waqf-odoo-modules/
+/zakat-odoo-modules/
+/npo-core-modules/
+/lks-odoo-modules/
+
+# Extra addons dynamically generated symlinks
+extra-addons/*
+!extra-addons/.gitkeep
+!extra-addons/README.md
+!extra-addons/waqf_core
+!extra-addons/l10n_id_waqf_psak112
+!extra-addons/waqf_distribution
+!extra-addons/waqf_asset_management
 
 # Caddy Local State (if mounted locally)
 caddy_data/
