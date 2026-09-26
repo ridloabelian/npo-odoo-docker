@@ -1,13 +1,13 @@
 # ==============================================================================
-# DOCKERFILE - ODOO 19 / 18 LTS PRODUCTION FOR INDONESIAN NPO ECOSYSTEM
+# DOCKERFILE - ODOO 20 / 19 / 18 LTS PRODUCTION FOR INDONESIAN NPO ECOSYSTEM
 # Standar Akuntansi: PSAK 412 (Wakaf), PSAK 109 (Zakat), ISAK 35 (Sosial/LKS)
 # ==============================================================================
-# Base image resmi Odoo (default: 19.0, dapat dioverride ke 18.0)
-ARG ODOO_BASE_IMAGE=odoo:19.0
+# Base image resmi Odoo (default: 20.0, dapat dioverride ke 19.0 atau 18.0)
+ARG ODOO_BASE_IMAGE=odoo:20.0
 FROM ${ODOO_BASE_IMAGE}
 
 LABEL maintainer="Tim Pengembang NPO Odoo Indonesia <dev@npo.id>"
-LABEL description="Odoo 19/18 Community Edition dengan dependensi Python lengkap untuk Lembaga Nirlaba Indonesia (PSAK 412, PSAK 109, ISAK 35)"
+LABEL description="Odoo 20/19/18 Community Edition dengan dependensi Python lengkap untuk Lembaga Nirlaba Indonesia (PSAK 412, PSAK 109, ISAK 35)"
 
 USER root
 

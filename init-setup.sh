@@ -254,7 +254,7 @@ sync_repo() {
     local REPO_URL_DEFAULT="https://github.com/ridloabelian/${REPO_NAME}.git"
     local TARGET_DIR="./extra-addons/${REPO_NAME}"
     local LOCAL_SOURCE="./${REPO_NAME}"
-    local BRANCH="${MODULES_BRANCH:-19.0}"
+    local BRANCH="${MODULES_BRANCH:-20.0}"
 
     echo -e "  ${CYAN}→ Memproses repositori modul:${NC} ${BOLD}${REPO_NAME}${NC}"
 
@@ -266,13 +266,15 @@ sync_repo() {
     # 2. Jika sudah ada git repo di target
     elif [[ -d "$TARGET_DIR/.git" ]]; then
         echo -e "    Memperbarui modul via git pull..."
-        git -C "$TARGET_DIR" checkout "$BRANCH" 2>/dev/null || true
+        git -C "$TARGET_DIR" checkout "$BRANCH" 2>/dev/null || git -C "$TARGET_DIR" checkout "19.0" 2>/dev/null || true
         git -C "$TARGET_DIR" pull --ff-only 2>/dev/null || true
-    # 3. Kloning dari remote git
+    # 3. Kloning dari remote git (dengan fallback ke 19.0)
     else
         echo -e "    Mengunduh dari remote: ${REPO_URL_DEFAULT} (branch: ${BRANCH})..."
         if git clone --branch "$BRANCH" --depth 1 "$REPO_URL_DEFAULT" "$TARGET_DIR" 2>/dev/null; then
-            echo -e "    ${GREEN}✓ Kloning modul ${REPO_NAME} berhasil.${NC}"
+            echo -e "    ${GREEN}✓ Kloning modul ${REPO_NAME} (branch ${BRANCH}) berhasil.${NC}"
+        elif git clone --branch "19.0" --depth 1 "$REPO_URL_DEFAULT" "$TARGET_DIR" 2>/dev/null; then
+            echo -e "    ${GREEN}✓ Kloning modul ${REPO_NAME} (fallback branch 19.0) berhasil.${NC}"
         else
             echo -e "    ${YELLOW}! Repositori remote belum dapat diakses langsung. Menyiapkan struktur lokal fallback...${NC}"
             mkdir -p "$TARGET_DIR"

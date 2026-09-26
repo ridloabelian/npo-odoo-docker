@@ -1,13 +1,13 @@
 # npo-odoo-docker: Turnkey Production Package untuk ERP Nirlaba Indonesia
 
 [![Docker](https://img.shields.io/badge/Docker-v2%20Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![Odoo](https://img.shields.io/badge/Odoo-19.0%20%7C%2018.0%20LTS-714B67?logo=odoo&logoColor=white)](https://www.odoo.com/)
+[![Odoo](https://img.shields.io/badge/Odoo-20.0%20%7C%2019.0%20%7C%2018.0%20LTS-714B67?logo=odoo&logoColor=white)](https://www.odoo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17%20%7C%2016%20Alpine-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Caddy](https://img.shields.io/badge/Caddy-2%20Alpine%20(Auto--SSL)-1F88C0?logo=caddy&logoColor=white)](https://caddyserver.com/)
 [![Compliance](https://img.shields.io/badge/Standards-PSAK%20412%20%7C%20PSAK%20109%20%7C%20ISAK%2035-brightgreen)](#standar-dan-regulasi)
 [![License](https://img.shields.io/badge/License-LGPL--3.0-blue.svg)](LICENSE)
 
-**`npo-odoo-docker`** adalah repositori instalasi 1-klik (*Turnkey Production Package*) untuk menggelar sistem ERP Odoo 19 / 18 LTS yang telah dioptimasi khusus untuk ekosistem Lembaga Nirlaba, Organisasi Pengelola Zakat (OPZ), Lembaga Pengelola Wakaf (Nazhir), dan Lembaga Kesejahteraan Sosial (LKS/Panti) di Indonesia.
+**`npo-odoo-docker`** adalah repositori instalasi 1-klik (*Turnkey Production Package*) untuk menggelar sistem ERP Odoo 20 / 19 / 18 LTS yang telah dioptimasi khusus untuk ekosistem Lembaga Nirlaba, Organisasi Pengelola Zakat (OPZ), Lembaga Pengelola Wakaf (Nazhir), dan Lembaga Kesejahteraan Sosial (LKS/Panti) di Indonesia.
 
 Paket ini dirancang untuk dijalankan di VPS Linux (Ubuntu 22.04 LTS / Ubuntu 24.04 LTS) dengan konfigurasi otomatis multi-worker, auto-swap memory, auto-SSL Let's Encrypt, isolasi jaringan penuh (*zero host exposure*), pencadangan terpadu DB + Filestore, dan disaster recovery 1 perintah.
 
@@ -49,7 +49,7 @@ Sistem menggunakan Docker Compose v2 dengan pemisahan 3 layer layanan yang teris
                                   ▼               ▼
                 ┌───────────────────────────────────────────────────┐
                 │              LAYER 2: APPLICATION                │
-                │            (Odoo 19.0 / 18.0 LTS)                 │
+                │         (Odoo 20.0 / 19.0 / 18.0 LTS)             │
                 │   - Multi-Worker Tuning: (Cores * 2) + 1          │
                 │   - Pustaka: openpyxl, qrcode, num2words          │
                 │   - Port 8069 & 8072 ISOLASI INTERNAL (Zero Host) │
@@ -415,4 +415,4 @@ Jika Anda awalnya memilih Profil 1 (Wakaf) lalu ingin beralih ke Profil 4 (All-i
 Inisiatif repositori ini dikembangkan secara terbuka untuk memodernisasi tata kelola teknologi informasi organisasi nirlaba, wakaf, dan zakat di Indonesia.
 
 - **Lisensi**: GNU Lesser General Public License v3.0 (LGPL-3.0)
-- **Kompatibilitas**: Odoo 19.0 Community, Odoo 18.0 LTS Community, Odoo Enterprise.
+- **Kompatibilitas**: Odoo 20.0 Community, Odoo 19.0 Community, Odoo 18.0 LTS Community, Odoo Enterprise.

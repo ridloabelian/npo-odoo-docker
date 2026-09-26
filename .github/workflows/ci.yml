@@ -2,9 +2,9 @@ name: OCA & Python Linting CI
 
 on:
   push:
-    branches: [ "19.0", "18.0", "17.0" ]
+    branches: [ "20.0", "19.0", "18.0", "main" ]
   pull_request:
-    branches: [ "19.0", "18.0", "17.0" ]
+    branches: [ "20.0", "19.0", "18.0", "main" ]
 
 jobs:
   lint-and-validate:

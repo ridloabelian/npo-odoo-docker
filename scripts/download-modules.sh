@@ -20,7 +20,7 @@ if [[ -f "$PROJECT_ROOT/.env" ]]; then
     set +a
 fi
 
-BRANCH="${MODULES_BRANCH:-19.0}"
+BRANCH="${MODULES_BRANCH:-20.0}"
 PROFILE="${NPO_PROFILE:-1}"
 
 echo "===================================================================="
@@ -48,14 +48,18 @@ sync_one_repo() {
         cp -r "$LOCAL_SOURCE" "$TARGET_DIR"
     elif [[ -d "$TARGET_DIR/.git" ]]; then
         echo "  Memperbarui modul via git pull..."
-        git -C "$TARGET_DIR" checkout "$BRANCH" 2>/dev/null || true
+        git -C "$TARGET_DIR" checkout "$BRANCH" 2>/dev/null || git -C "$TARGET_DIR" checkout "19.0" 2>/dev/null || true
         git -C "$TARGET_DIR" pull --ff-only 2>/dev/null || true
     else
-        echo "  Mengkloning dari ${REPO_URL_DEFAULT}..."
-        git clone --branch "$BRANCH" --depth 1 "$REPO_URL_DEFAULT" "$TARGET_DIR" 2>/dev/null || {
+        echo "  Mengkloning dari ${REPO_URL_DEFAULT} (branch: ${BRANCH})..."
+        if git clone --branch "$BRANCH" --depth 1 "$REPO_URL_DEFAULT" "$TARGET_DIR" 2>/dev/null; then
+            echo "  ✓ Kloning modul ${REPO_NAME} (branch ${BRANCH}) berhasil."
+        elif git clone --branch "19.0" --depth 1 "$REPO_URL_DEFAULT" "$TARGET_DIR" 2>/dev/null; then
+            echo "  ✓ Kloning modul ${REPO_NAME} (fallback branch 19.0) berhasil."
+        else
             echo "  [WARN] Kloning remote tidak dapat diselesaikan. Menyiapkan direktori lokal..."
             mkdir -p "$TARGET_DIR"
-        }
+        fi
     fi
 
     # Link module individual ke ./extra-addons

@@ -2,7 +2,7 @@
 # NPO ODOO DOCKER - TURNKEY DOCKER COMPOSE V2
 # Inisiatif Sistem ERP Terpadu Lembaga Nirlaba Indonesia
 # Standar: BWI (PSAK 412), BAZNAS (PSAK 109), Kemensos (ISAK 35)
-# Arsitektur 3-Tier: Caddy 2 (Proxy) -> Odoo 19/18 LTS (Web) -> PostgreSQL 17/16 (DB)
+# Arsitektur 3-Tier: Caddy 2 (Proxy) -> Odoo 20/19/18 LTS (Web) -> PostgreSQL 17/16 (DB)
 # ==============================================================================
 
 services:
@@ -42,16 +42,16 @@ services:
       start_period: 10s
 
   # ----------------------------------------------------------------------------
-  # 2. WEB SERVICE: Odoo 19 / 18 LTS Community Edition
+  # 2. WEB SERVICE: Odoo 20 / 19 / 18 LTS Community Edition
   # ----------------------------------------------------------------------------
   web:
-    image: ${ODOO_IMAGE:-odoo:19.0}
+    image: ${ODOO_IMAGE:-odoo:20.0}
     # Untuk build image lokal dengan dependensi Python lengkap (PSAK, Excel, QR Code):
     # build:
     #   context: .
     #   dockerfile: Dockerfile
     #   args:
-    #     ODOO_BASE_IMAGE: ${ODOO_IMAGE:-odoo:19.0}
+    #     ODOO_BASE_IMAGE: ${ODOO_IMAGE:-odoo:20.0}
     container_name: ${CONTAINER_PREFIX:-npo}_odoo_web
     restart: unless-stopped
     depends_on:

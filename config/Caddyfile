@@ -1,7 +1,7 @@
 # ==============================================================================
 # CADDY REVERSE PROXY CONFIGURATION - NPO ODOO DOCKER
 # Inisiatif Sistem ERP Terpadu Lembaga Nirlaba Indonesia
-# Auto-SSL Let's Encrypt, HTTP/3 (QUIC), & WebSocket Routing Odoo 18 / 19
+# Auto-SSL Let's Encrypt, HTTP/3 (QUIC), & WebSocket Routing Odoo 20 / 19 / 18
 # ==============================================================================
 
 {
@@ -30,7 +30,7 @@
     }
 
     # --------------------------------------------------------------------------
-    # 1. Routing WebSocket Odoo 18 / 19 (Port 8072 - gevent/longpolling)
+    # 1. Routing WebSocket Odoo 20 / 19 / 18 (Port 8072 - gevent/longpolling)
     # Sangat penting untuk live chat, Discuss, notifikasi bus, dan status real-time
     # --------------------------------------------------------------------------
     handle /websocket* {
